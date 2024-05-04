@@ -2,9 +2,9 @@ import pandas as pd
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import seaborn as sns
-import webbrowser
 import tkinter as tk
 from tkinter import messagebox
+import webbrowser
 
 
 class DogUI(tk.Tk):
