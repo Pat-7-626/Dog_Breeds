@@ -5,12 +5,7 @@ class DogDataset:
     def __init__(self, name):
         csv = CSVDataset("dataset/")
         csv.import_csv()
-        self.df = csv.get_csv(name)
+        self.d = csv.get_csv(name)
 
     def get_list(self, column_name):
-        return self.df[column_name].tolist()
-
-
-dog_1 = DogDataset("dog_breeds_2")
-
-
+        return self.d[column_name].tolist()
