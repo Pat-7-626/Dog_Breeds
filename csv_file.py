@@ -18,9 +18,3 @@ class CSVDataset:
 
     def get_csv(self, name):
         return self.dataframes_dict.get(name, None)
-
-
-csv_importer = CSVDataset("dataset/")
-csv_importer.import_csv()
-df = csv_importer.get_csv("dog_breeds_1")
-print(df)
