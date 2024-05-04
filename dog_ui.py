@@ -485,9 +485,3 @@ class DogUI(tk.Tk):
                        f"{name}",
                        "Level",
                        "Frequency")
-
-print(f"pandas version: {pd.__version__}")  # Print pandas version
-print(f"os version: {os.__version__}")  # Print os version
-print(f"matplotlib version: {matplotlib.__version__}")  # Print matplotlib version (manual check required)
-print(f"numpy version: {np.__version__}")  # Print numpy version
-print(f"seaborn version: {sns.__version__}")
