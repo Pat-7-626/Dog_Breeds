@@ -28,16 +28,15 @@ class DogUI(tk.Tk):
         self.v1 = tk.BooleanVar()
         self.v2 = tk.BooleanVar()
         self.v3 = tk.BooleanVar()
-        self.Intell_1 = tk.BooleanVar()
-        self.Intell_2 = tk.BooleanVar()
-        self.Intell_3 = tk.BooleanVar()
-        self.Intell_4 = tk.BooleanVar()
-        self.Intell_5 = tk.BooleanVar()
-        self.Adapt_1 = tk.BooleanVar()
-        self.Adapt_2 = tk.BooleanVar()
-        self.Adapt_3 = tk.BooleanVar()
-        self.Adapt_4 = tk.BooleanVar()
-        self.Adapt_5 = tk.BooleanVar()
+        self.list_Intell_var = [tk.BooleanVar(), tk.BooleanVar(),
+                                tk.BooleanVar(), tk.BooleanVar(),
+                                tk.BooleanVar()]
+        self.list_Adapt_var = [tk.BooleanVar(), tk.BooleanVar(),
+                               tk.BooleanVar(), tk.BooleanVar(),
+                               tk.BooleanVar()]
+        self.list_Friend_var = [tk.BooleanVar(), tk.BooleanVar(),
+                                tk.BooleanVar(), tk.BooleanVar(),
+                                tk.BooleanVar()]
         self.entry_story = None
         self.title("Dog Breeds")
         self.configure(bg=self.blue,
@@ -65,6 +64,9 @@ class DogUI(tk.Tk):
         self.init_IvsF()
         self.init_AvsF()
         self.init_Intell()
+        self.init_Adapt()
+        self.init_Friend()
+        self.init_DSC()
         self.columnconfigure(0,
                              weight=100)
         self.rowconfigure(0,
@@ -248,8 +250,8 @@ class DogUI(tk.Tk):
                          bg=self.blue,
                          fg="white")
         des = tk.Label(self.pages["story"],
-                       text="Topic: The relationship between Intelligence, "
-                            "Adaptability and Friendliness",
+                       text="The topic: The relationship between "
+                            "Intelligence, Adaptability, and Friendliness.",
                        font=(self.font, 20),
                        bg=self.blue,
                        fg="white")
@@ -431,27 +433,25 @@ class DogUI(tk.Tk):
         sub_Intell_page = tk.Frame(self.pages["Intell"],
                                    bg=self.blue)
         self.pages_2["sub_Intell_page"] = sub_Intell_page
-        self.Intell_1.set(True)
-        self.Intell_2.set(False)
-        self.Intell_3.set(False)
-        self.Intell_4.set(False)
-        self.Intell_5.set(False)
+        for i in self.list_Intell_var:
+            i.set(False)
+        self.list_Intell_var[0].set(True)
         self.bar_change("Intelligence",
                         "Intell",
                         "Level",
-                        "Frequency_Intell")
-        Intell_var_list = [self.Intell_1, self.Intell_2, self.Intell_3,
-                           self.Intell_4, self.Intell_5]
+                        "Frequency_Intell",
+                        [i for i in self.list_Intell_var])
         for i in range(0, 5):
             check = tk.Checkbutton(self.pages_2["sub_Intell_page"],
                                    text=f"Level {i + 1}",
-                                   variable=Intell_var_list[i],
+                                   variable=self.list_Intell_var[i],
                                    command=lambda:
                                    self.bar_change(
                                        "Intelligence",
                                        "Intell",
                                        "Level",
-                                       "Frequency_Intell"),
+                                       "Frequency_Intell",
+                                       [i for i in self.list_Intell_var]),
                                    font=(self.font, 20),
                                    bg=self.blue,
                                    activebackground=self.blue,
@@ -469,29 +469,27 @@ class DogUI(tk.Tk):
 
     def init_Adapt(self):
         sub_Adapt_page = tk.Frame(self.pages["Adapt"],
-                                   bg=self.blue)
+                                  bg=self.blue)
         self.pages_2["sub_Adapt_page"] = sub_Adapt_page
-        self.Adapt_1.set(True)
-        self.Adapt_2.set(False)
-        self.Adapt_3.set(False)
-        self.Adapt_4.set(False)
-        self.Adapt_5.set(False)
+        for i in self.list_Adapt_var:
+            i.set(False)
+        self.list_Intell_var[0].set(True)
         self.bar_change("Adaptability",
                         "Adapt",
                         "Level",
-                        "Frequency_Adapt")
-        Adapt_var_list = [self.Adapt_1, self.Adapt_2, self.Adapt_3,
-                           self.Adapt_4, self.Adapt_5]
+                        "Frequency_Adapt",
+                        [j for j in self.list_Intell_var])
         for i in range(0, 5):
             check = tk.Checkbutton(self.pages_2["sub_Adapt_page"],
                                    text=f"Level {i + 1}",
-                                   variable=Adapt_var_list[i],
+                                   variable=self.list_Intell_var[i],
                                    command=lambda:
                                    self.bar_change(
                                        "Adaptability",
                                        "Adapt",
                                        "Level",
-                                       "Frequency_Adapt"),
+                                       "Frequency_Adapt",
+                                       [j for j in self.list_Intell_var]),
                                    font=(self.font, 20),
                                    bg=self.blue,
                                    activebackground=self.blue,
@@ -504,8 +502,123 @@ class DogUI(tk.Tk):
                        ipadx=50,
                        ipady=10)
         sub_Adapt_page.grid(column=0,
+                            row=2,
+                            columnspan=6)
+
+    def init_Friend(self):
+        sub_Friend_page = tk.Frame(self.pages["Friend"],
+                                   bg=self.blue)
+        self.pages_2["sub_Friend_page"] = sub_Friend_page
+        for i in self.list_Friend_var:
+            i.set(False)
+        self.list_Friend_var[0].set(True)
+        self.bar_change("Friendliness",
+                        "Friend",
+                        "Level",
+                        "Frequency_Friend",
+                        [i for i in self.list_Friend_var])
+        for i in range(0, 5):
+            check = tk.Checkbutton(self.pages_2["sub_Friend_page"],
+                                   text=f"Level {i + 1}",
+                                   variable=self.list_Friend_var[i],
+                                   command=lambda:
+                                   self.bar_change(
+                                       "Friendliness",
+                                       "Friend",
+                                       "Level",
+                                       "Frequency_Friend",
+                                       [j for j in self.list_Friend_var]),
+                                   font=(self.font, 20),
+                                   bg=self.blue,
+                                   activebackground=self.blue,
+                                   activeforeground=self.red)
+            check.grid(column=i,
+                       row=0,
+                       columnspan=1,
+                       padx=20,
+                       pady=5,
+                       ipadx=50,
+                       ipady=10)
+        sub_Friend_page.grid(column=0,
                              row=2,
                              columnspan=6)
+
+    def init_DSC(self):
+        # todo: grid, label are all separate
+        description = self.d1.d.describe().transpose()
+        filtered_des = description.loc[["Intelligence",
+                                        "Adaptability",
+                                        "Friendliness"]]
+        text_des = str(filtered_des).split()
+        text_head = [""] + [text_des[i] for i in range(0, 8)]
+        text_Intell = [text_des[i] for i in range(8, 17)]
+        text_Adapt = [text_des[i] for i in range(17, 26)]
+        text_Friend = [text_des[i] for i in range(26, 35)]
+        title = tk.Label(self.pages["DSC"],
+                         text="Descriptive Statistics and Correlations",
+                         font=(self.font, 35),
+                         bg=self.blue,
+                         fg="white")
+        des_head = tk.Label(self.pages["DSC"],
+                            text="".join(text_head),
+                            font=(self.font, 20),
+                            bg=self.blue,
+                            fg="white")
+        des_Intell = tk.Label(self.pages["DSC"],
+                              text="".join(text_Intell),
+                              font=(self.font, 20),
+                              bg=self.blue,
+                              fg="white")
+        des_Adapt = tk.Label(self.pages["DSC"],
+                             text="".join(text_Adapt),
+                             font=(self.font, 20),
+                             bg=self.blue,
+                             fg="white")
+        des_Friend = tk.Label(self.pages["DSC"],
+                              text="".join(text_Friend),
+                              font=(self.font, 20),
+                              bg=self.blue,
+                              fg="white")
+        title.grid(column=0,
+                   row=2,
+                   sticky=tk.NSEW,
+                   columnspan=6,
+                   padx=20,
+                   pady=5,
+                   ipadx=30,
+                   ipady=5)
+        des_head.grid(column=0,
+                      row=3,
+                      sticky=tk.NSEW,
+                      columnspan=6,
+                      padx=20,
+                      pady=5,
+                      ipadx=30,
+                      ipady=5)
+        des_Intell.grid(column=0,
+                        row=4,
+                        sticky=tk.NSEW,
+                        columnspan=6,
+                        padx=20,
+                        pady=5,
+                        ipadx=30,
+                        ipady=5)
+        des_Adapt.grid(column=0,
+                       row=5,
+                       sticky=tk.NSEW,
+                       columnspan=6,
+                       padx=20,
+                       pady=5,
+                       ipadx=30,
+                       ipady=5)
+        des_Friend.grid(column=0,
+                        row=6,
+                        sticky=tk.NSEW,
+                        columnspan=6,
+                        padx=20,
+                        pady=5,
+                        ipadx=30,
+                        ipady=5)
 
     def show_page(self, name):
         for page in self.pages.values():
@@ -612,11 +725,13 @@ class DogUI(tk.Tk):
         sns.regplot(data=df,
                     x=x,
                     y=y,
+                    color=self.red,
+                    line_kws={"color": self.blue},
                     ax=ax)
-        ax.set_xlabel(x,
+        ax.set_xlabel(f"Levels of {x}",
                       fontsize=10,
                       fontfamily=self.font_fam)
-        ax.set_ylabel(y,
+        ax.set_ylabel(f"Levels of {y}",
                       fontsize=10,
                       fontfamily=self.font_fam)
         ax.set_title(f"{x} vs {y}",
@@ -663,6 +778,7 @@ class DogUI(tk.Tk):
         sns.barplot(data=df,
                     x=x,
                     y=y,
+                    color=self.red,
                     ax=ax)
         ax.set_xlabel(x,
                       fontsize=10,
@@ -682,8 +798,8 @@ class DogUI(tk.Tk):
                                     columnspan=span)
         plt.close(fig)
 
-    def bar_change(self, ori_name, name, x, y):
-        # todo: grid of all, color of all, checked at least 1, go back button
+    def bar_change(self, ori_name, name, x, y, var_list):
+        # todo: grid of all
         if f"{name}_page" in self.pages_2:
             self.pages_2[f"{name}_page"].grid_forget()
         new_page = tk.Frame(self.pages[name],
@@ -692,17 +808,22 @@ class DogUI(tk.Tk):
         self.pages_2[f"{name}_page"].grid(column=0,
                                           row=3,
                                           columnspan=6)
+        if (not var_list[0].get() and not var_list[1].get()
+                and not var_list[2].get() and not var_list[3].get()
+                and not var_list[4].get()):
+            messagebox.showwarning(f"Can't uncheck all",
+                                   f"You can't uncheck all five.")
+            for i in var_list:
+                i.set(False)
+            var_list[0].set(True)
         all_list = self.d2.get_list(y)
         level_list = [str(i) for i in self.d2.get_list(x)]
         spe = 0
         name_list = []
-        var_list = [self.Intell_1.get(), self.Intell_2.get(),
-                    self.Intell_3.get(), self.Intell_4.get(),
-                    self.Intell_5.get()]
         num = 0
         num_name = 0
         for i in var_list:
-            if i:
+            if i.get():
                 spe += self.d2.get_list(y)[num_name]
                 all_list.pop(num)
                 level_list.pop(num)
@@ -710,14 +831,8 @@ class DogUI(tk.Tk):
             else:
                 num += 1
             num_name += 1
-        if spe == 0:
-            y_df = all_list
-        else:
-            y_df = [spe] + all_list
-        if ", ".join(name_list) == "":
-            x_df = level_list
-        else:
-            x_df = [", ".join(name_list)] + level_list
+        y_df = [spe] + all_list
+        x_df = [", ".join(name_list)] + level_list
         df = pd.DataFrame({x: x_df,
                            y: y_df})
         self.bar(ori_name,
