@@ -9,6 +9,10 @@ import webbrowser
 
 
 class DogUI(tk.Tk):
+    """
+    UI of Dog Breeds Application
+    """
+
     background = "#98c1d9"
     light = "#e0fbfc"
     pitch = "#293241"
@@ -18,6 +22,13 @@ class DogUI(tk.Tk):
     font_fam = "monospace"
 
     def __init__(self, d1, d2, t, ma_t, *args, **kwargs):
+        """
+        init
+        :param d1: DogDataset
+        :param d2: DogDataset
+        :param t: list
+        :param ma_t: list
+        """
         super().__init__(*args, **kwargs)
         self.d1 = d1
         self.d2 = d2
@@ -40,7 +51,6 @@ class DogUI(tk.Tk):
         self.IPA_v3 = tk.BooleanVar()
         self.entry_story = None
         self.text = None
-        self.melted_df = None
         self.title("Dog Breeds")
         self.configure(bg=self.background,
                        borderwidth=35,
@@ -51,6 +61,10 @@ class DogUI(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.close_window_and_exit)
 
     def init_page(self):
+        """
+        init of page
+        :return: void
+        """
         for i in ["home", "story", "DSC", "histogram", "IvsP", "IvsA",
                   "PvsA", "IPA", "final"]:
             page = tk.Frame(self,
@@ -71,6 +85,10 @@ class DogUI(tk.Tk):
                           weight=100)
 
     def init_menu(self, name):
+        """
+        init of menu
+        :return: void
+        """
         button_home = tk.Button(self.pages[name],
                                 text="Home",
                                 command=lambda:
@@ -119,6 +137,10 @@ class DogUI(tk.Tk):
                    ipady=5)
 
     def init_Results(self, page, row):
+        """
+        init of Results
+        :return: void
+        """
         button_Results = tk.Button(page,
                                    text="Data Storytelling Results",
                                    command=lambda:
@@ -137,6 +159,10 @@ class DogUI(tk.Tk):
                             ipady=0)
 
     def init_home(self):
+        """
+        init of home
+        :return: void
+        """
         title = tk.Label(self.pages["home"],
                          text="Dog Breeds",
                          font=(self.font, 130),
@@ -226,6 +252,10 @@ class DogUI(tk.Tk):
         self.entry_story.bind("<Return>", self.show_dog_solo)
 
     def init_story(self):
+        """
+        init of story
+        :return: void
+        """
         title = tk.Label(self.pages["story"],
                          text="Data Storytelling Results",
                          font=(self.font, 50),
@@ -288,6 +318,10 @@ class DogUI(tk.Tk):
                  ipady=5)
 
     def init_histogram(self):
+        """
+        init of histogram
+        :return: void
+        """
         sub_his_page = tk.Frame(self.pages["histogram"],
                                 bg=self.background)
         self.pages_2["sub_his_page"] = sub_his_page
@@ -335,6 +369,10 @@ class DogUI(tk.Tk):
         self.init_Results(self.pages["histogram"], 5)
 
     def init_IvsP(self):
+        """
+        init of I vs P
+        :return: void
+        """
         sub_IvsP_page = tk.Frame(self.pages["IvsP"],
                                  bg=self.background)
         self.pages_2["sub_IvsP_page"] = sub_IvsP_page
@@ -385,6 +423,10 @@ class DogUI(tk.Tk):
         self.init_Results(self.pages["IvsP"], 5)
 
     def init_IvsA(self):
+        """
+        init of I vs A
+        :return: void
+        """
         sub_IvsA_page = tk.Frame(self.pages["IvsA"],
                                  bg=self.background)
         self.pages_2["sub_IvsA_page"] = sub_IvsA_page
@@ -435,6 +477,10 @@ class DogUI(tk.Tk):
         self.init_Results(self.pages["IvsA"], 5)
 
     def init_PvsA(self):
+        """
+        init of P vs A
+        :return: void
+        """
         sub_PvsA_page = tk.Frame(self.pages["PvsA"],
                                  bg=self.background)
         self.pages_2["sub_PvsA_page"] = sub_PvsA_page
@@ -485,6 +531,10 @@ class DogUI(tk.Tk):
         self.init_Results(self.pages["PvsA"], 5)
 
     def init_IPA(self):
+        """
+        init of bar graph
+        :return: void
+        """
         sub_IPA_page = tk.Frame(self.pages["IPA"],
                                 bg=self.background)
         self.pages_2["sub_IPA_page"] = sub_IPA_page
@@ -515,6 +565,10 @@ class DogUI(tk.Tk):
         self.init_Results(self.pages["IPA"], 4)
 
     def init_DSC(self):
+        """
+        init of Descriptive Statistics and Correlations
+        :return: void
+        """
         title_1 = tk.Label(self.pages["DSC"],
                            text="Descriptive Statistics",
                            font=(self.font, 25),
@@ -652,6 +706,10 @@ class DogUI(tk.Tk):
         self.init_Results(self.pages["DSC"], 4)
 
     def init_final(self):
+        """
+        init of the story from the dataset
+        :return: void
+        """
         I_P = f"{self.result_cor(self.t1, self.t2)}"
         I_A = f"{self.result_cor(self.t1, self.t3)}"
         P_A = f"{self.result_cor(self.t2, self.t3)}"
@@ -757,14 +815,25 @@ class DogUI(tk.Tk):
         self.init_Results(self.pages["final"], 4)
 
     def show_page(self, name):
-        for page in self.pages.values():
-            page.grid_forget()
+        """
+        show pages
+        :param name: str
+        :return: void
+        """
+        for i, j in self.pages.items():
+            j.grid_forget()
         self.pages[name].grid(row=0,
                               column=0)
         self.init_menu(name)
         self.pages["home"].focus_set()
 
     def show_page_2(self, name, name_parent):
+        """
+        show sub-pages
+        :param name: str
+        :param name_parent: str
+        :return: void
+        """
         if name in self.pages_2:
             self.pages_2[name].grid_forget()
         his_page = tk.Frame(self.pages[name_parent],
@@ -775,6 +844,10 @@ class DogUI(tk.Tk):
                                 columnspan=6)
 
     def show_dog_solo(self, event):
+        """
+        go to website of each dog
+        :return: void
+        """
         ori_name = self.entry_story.get()
         name = ori_name.lower().replace(" ", "")
         ori_list = self.d1.get_list("Breed Name")
@@ -791,6 +864,11 @@ class DogUI(tk.Tk):
             webbrowser.open(f"{dog_breed[name]}")
 
     def order(self, name):
+        """
+        find the order of the bar graphs
+        :param name: str
+        :return: str
+        """
         list_name = [int(i) for i in self.d2.get_list(name)]
         o_level = {}
         count = 1
@@ -809,15 +887,31 @@ class DogUI(tk.Tk):
 
     @staticmethod
     def focus_in(entry):
+        """
+        delete the words in the entry
+        :param entry: tk.Entry
+        :return: void
+        """
         entry.delete(0, tk.END)
 
     @staticmethod
     def focus_out(entry, word):
+        """
+        change the words in the entry
+        :param entry: tk.Entry
+        :param word: str
+        :return: void
+        """
         entry.delete(0, tk.END)
         entry.insert(0, word)
 
     @staticmethod
     def skewed(skewness):
+        """
+        find a distribution
+        :param skewness: float
+        :return: str
+        """
         if -0.5 < skewness < 0.5:
             return "Symmetric Distribution"
         elif -0.5 >= skewness:
@@ -830,6 +924,11 @@ class DogUI(tk.Tk):
 
     @staticmethod
     def find_cor(cor):
+        """
+        find a relationship
+        :param cor: float
+        :return: str
+        """
         if cor == 0:
             return "No Linear Relationship"
         elif 0 < cor <= 0.1:
@@ -849,6 +948,12 @@ class DogUI(tk.Tk):
         return "Strong Negative Relationship"
 
     def result_cor(self, t1, t2):
+        """
+        find the result
+        :param t1: str
+        :param t2: str
+        :return: str
+        """
         cor = self.d1.d[[t1, t2]].corr().iloc[0, 1]
         if cor == 0:
             return (f"   There is no linear relationship ({cor:.4f}) between "
@@ -896,6 +1001,19 @@ class DogUI(tk.Tk):
                     f"level to have a lower {t2} level.")
 
     def histogram(self, name, page, column, row, span, df, x, x_name, y_name):
+        """
+        create the histogram
+        :param name: str
+        :param page: tk.Frame
+        :param column: int
+        :param row: int
+        :param span: int
+        :param df: pd.DataFrame
+        :param x: str
+        :param x_name: str
+        :param y_name: str
+        :return: void
+        """
         fig, ax = plt.subplots()
         sns.histplot(data=df,
                      x=x,
@@ -924,6 +1042,10 @@ class DogUI(tk.Tk):
         plt.close(fig)
 
     def his_change(self):
+        """
+        change the histogram
+        :return: void
+        """
         self.show_page_2("his_page", "histogram")
         all_list = []
         name_list = []
@@ -960,6 +1082,17 @@ class DogUI(tk.Tk):
         self.text.grid()
 
     def scatter(self, page, column, row, span, df, x, y):
+        """
+        create the scatter plot
+        :param page: tk.DataFrame
+        :param column: int
+        :param row: int
+        :param span: int
+        :param df: pd.DataFrame
+        :param x: str
+        :param y: str
+        :return: void
+        """
         fig, ax = plt.subplots()
         sns.regplot(data=df,
                     x=x,
@@ -989,6 +1122,14 @@ class DogUI(tk.Tk):
         plt.close(fig)
 
     def scatter_change(self, x, y, name, var):
+        """
+        change the scatter plot
+        :param x: str
+        :param y: str
+        :param name: str
+        :param var: boolean
+        :return: void
+        """
         if var:
             temp = x
             x = y
@@ -1008,11 +1149,23 @@ class DogUI(tk.Tk):
                      y)
 
     def bar(self, name, page, column, row, c_span, r_span, df, color):
-        self.melted_df = df.melt(id_vars="Level",
-                                 var_name="Each Topic",
-                                 value_name="val")
+        """
+        create the bar graph
+        :param name: str
+        :param page: tk.Frame
+        :param column: int
+        :param row: int
+        :param c_span: int
+        :param r_span: int
+        :param df: pd.DataFrame
+        :param color: str
+        :return: void
+        """
+        melted_df = df.melt(id_vars="Level",
+                            var_name="Each Topic",
+                            value_name="val")
         fig, ax = plt.subplots()
-        sns.barplot(data=self.melted_df,
+        sns.barplot(data=melted_df,
                     x="Level",
                     y="val",
                     hue="Each Topic",
@@ -1039,6 +1192,10 @@ class DogUI(tk.Tk):
         plt.close(fig)
 
     def bar_change(self):
+        """
+        change the bar graph
+        :return: void
+        """
         self.show_page_2("IPA_page", "IPA")
         name_dict = {}
         all_dict = {}
@@ -1126,5 +1283,9 @@ class DogUI(tk.Tk):
             count_val += 1
 
     def close_window_and_exit(self):
+        """
+        close the window and exit
+        :return: none
+        """
         self.destroy()
         self.quit()
