@@ -1,6 +1,7 @@
 import pandas as pd
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import scipy.stats as stats
 import seaborn as sns
 import tkinter as tk
 from tkinter import messagebox
@@ -16,15 +17,21 @@ class DogUI(tk.Tk):
     font = "Terminal"
     font_fam = "monospace"
 
-    def __init__(self, d1, d2, d3, *args, **kwargs):
+    def __init__(self, d1, d2, t, ma_t, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.d1 = d1
         self.d2 = d2
-        self.d3 = d3
+        self.t1 = t[0]
+        self.t2 = t[1]
+        self.t3 = t[2]
+        self.m_t1 = ma_t[0]
+        self.m_t2 = ma_t[1]
+        self.m_t3 = ma_t[2]
         self.pages = {}
         self.pages_2 = {}
         self.scat = {}
         self.name_var = tk.StringVar()
+        self.skew = tk.StringVar()
         self.v1 = tk.BooleanVar()
         self.v2 = tk.BooleanVar()
         self.v3 = tk.BooleanVar()
@@ -32,6 +39,8 @@ class DogUI(tk.Tk):
         self.IPA_v2 = tk.BooleanVar()
         self.IPA_v3 = tk.BooleanVar()
         self.entry_story = None
+        self.text = None
+        self.melted_df = None
         self.title("Dog Breeds")
         self.configure(bg=self.background,
                        borderwidth=35,
@@ -42,15 +51,12 @@ class DogUI(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.close_window_and_exit)
 
     def init_page(self):
-        for i in ["home", "dog_list",
-                  "story", "DSC", "histogram",
-                  "IvsP", "IvsA", "PvsA",
-                  "IPA", "final"]:
+        for i in ["home", "story", "DSC", "histogram", "IvsP", "IvsA",
+                  "PvsA", "IPA", "final"]:
             page = tk.Frame(self,
                             bg=self.background)
             self.pages[i] = page
         self.init_home()
-        self.init_dog_list()
         self.init_story()
         self.init_histogram()
         self.init_IvsP()
@@ -58,6 +64,7 @@ class DogUI(tk.Tk):
         self.init_PvsA()
         self.init_IPA()
         self.init_DSC()
+        self.init_final()
         self.columnconfigure(0,
                              weight=100)
         self.rowconfigure(0,
@@ -146,15 +153,15 @@ class DogUI(tk.Tk):
                                   fg=self.light,
                                   activebackground=self.main,
                                   activeforeground=self.light)
-        button_dog_list = tk.Button(self.pages["home"],
-                                    text="All dog breeds",
-                                    command=lambda:
-                                    self.show_page("dog_list"),
-                                    font=(self.font, 15),
-                                    bg=self.dark,
-                                    fg=self.light,
-                                    activebackground=self.main,
-                                    activeforeground=self.light)
+        button_dog_web = tk.Button(self.pages["home"],
+                                   text="All dog breeds",
+                                   command=lambda:
+                                   webbrowser.open("https://dogtime.com/"),
+                                   font=(self.font, 15),
+                                   bg=self.dark,
+                                   fg=self.light,
+                                   activebackground=self.main,
+                                   activeforeground=self.light)
         button_story = tk.Button(self.pages["home"],
                                  text="Data Storytelling Results",
                                  command=lambda:
@@ -174,39 +181,39 @@ class DogUI(tk.Tk):
                    sticky=tk.E,
                    columnspan=3,
                    rowspan=4,
-                   padx=20,
-                   pady=5,
+                   padx=10,
+                   pady=10,
                    ipadx=50,
-                   ipady=0)
+                   ipady=10)
         button_source.grid(column=3,
                            row=3,
                            sticky="NSE",
                            padx=10,
                            pady=10,
-                           ipadx=20,
-                           ipady=5)
-        button_dog_list.grid(column=4,
-                             row=3,
-                             sticky=tk.NSEW,
-                             columnspan=2,
-                             padx=10,
-                             pady=10,
-                             ipadx=5,
-                             ipady=5)
+                           ipadx=30,
+                           ipady=10)
+        button_dog_web.grid(column=4,
+                            row=3,
+                            sticky=tk.NSEW,
+                            columnspan=2,
+                            padx=10,
+                            pady=10,
+                            ipadx=10,
+                            ipady=10)
         button_story.grid(column=4,
                           row=4,
                           sticky=tk.NSEW,
                           columnspan=2,
                           padx=10,
                           pady=10,
-                          ipadx=5,
-                          ipady=5)
+                          ipadx=10,
+                          ipady=10)
         self.entry_story.grid(column=0,
                               row=6,
                               sticky=tk.NSEW,
                               columnspan=6,
                               padx=10,
-                              pady=10,
+                              pady=0,
                               ipadx=500,
                               ipady=10)
         self.entry_story.insert(0, "   Name of a dog breed here...")
@@ -218,20 +225,6 @@ class DogUI(tk.Tk):
                                   "   Name of a dog breed here..."))
         self.entry_story.bind("<Return>", self.show_dog_solo)
 
-    def init_dog_solo(self, name, index):
-        ori_list = self.d1.get_list("Breed Name")
-        ori_name = ori_list[index]
-        title = tk.Label(self.pages[name],
-                         text=ori_name)
-        title.grid(column=0,
-                   row=2)
-
-    def init_dog_list(self):
-        title = tk.Label(self.pages["dog_list"],
-                         text="Dog Breeds")
-        title.grid(column=0,
-                   row=2)
-
     def init_story(self):
         title = tk.Label(self.pages["story"],
                          text="Data Storytelling Results",
@@ -239,22 +232,19 @@ class DogUI(tk.Tk):
                          bg=self.background,
                          fg=self.main)
         des = tk.Label(self.pages["story"],
-                       text="The topic: The relationship between\n\n"
-                            "Intelligence, Playfulness Potential, and "
-                            "Tolerance of Being Alone.",
+                       text=f"The topic: The relationship between\n\n"
+                            f"{self.t1}, {self.t2}, and {self.t3}.",
                        font=(self.font, 20),
                        bg=self.background,
                        fg=self.pitch)
 
-        button_all_1 = ["Intelligence\nvs\nPlayfulness Potential",
-                        "Intelligence\nvs\nTolerance of Being Alone",
-                        "Playfulness Potential\nvs\nTolerance of Being Alone",
+        button_all_1 = [f"{self.t1}\nvs\n{self.t2}",
+                        f"{self.t1}\nvs\n{self.t3}",
+                        f"{self.t2}\nvs\n{self.t3}",
                         "The bar graph of all levels of "
-                        "Intelligence, Playfulness Potential, "
-                        "and Tolerance of Being Alone",
+                        f"{self.t1}, {self.t2}, and {self.t3}",
                         "The histogram of all levels of "
-                        "Intelligence, Playfulness Potential, "
-                        "and Tolerance of Being Alone",
+                        f"{self.t1}, {self.t2}, and {self.t3}",
                         "Descriptive Statistics and Correlations",
                         "The story from the dataset"]
         button_all_2 = ["IvsP", "IvsA", "PvsA", "IPA",
@@ -304,14 +294,19 @@ class DogUI(tk.Tk):
         self.v1.set(True)
         self.v2.set(True)
         self.v3.set(True)
+        self.text = tk.Label(self.pages["histogram"],
+                             textvariable=self.skew,
+                             font=(self.font, 20),
+                             bg=self.background,
+                             fg=self.dark)
         self.his_change()
         check_1 = [self.v1, self.v2, self.v3]
         check_2 = ["Trainability,\n"
-                   "The major topic of\nIntelligence",
+                   f"The major topic of\n{self.t1}",
                    "Exercise Needs,\n"
-                   "The major topic of\nPlayfulness Potential",
+                   f"The major topic of\n{self.t2}",
                    "Adaptability,\n"
-                   "The major topic of\nTolerance of Being Alone"]
+                   f"The major topic of\n{self.t3}"]
         for i in range(0, 3):
             check = tk.Checkbutton(self.pages_2["sub_his_page"],
                                    text=check_2[i],
@@ -324,31 +319,36 @@ class DogUI(tk.Tk):
             check.grid(column=i,
                        row=0,
                        sticky=tk.NSEW,
-                       padx=10,
-                       pady=10,
+                       padx=5,
+                       pady=5,
                        ipadx=5,
-                       ipady=5)
+                       ipady=0)
         sub_his_page.grid(column=0,
                           row=2,
                           columnspan=6)
+        self.text.grid(column=0,
+                       row=4,
+                       padx=5,
+                       pady=5,
+                       ipadx=0,
+                       ipady=0)
+        self.init_Results(self.pages["histogram"], 5)
 
     def init_IvsP(self):
         sub_IvsP_page = tk.Frame(self.pages["IvsP"],
                                  bg=self.background)
         self.pages_2["sub_IvsP_page"] = sub_IvsP_page
         self.scat["IvsP"] = False
-        self.scatter_change("Intelligence",
-                            "Playfulness Potential",
+        self.scatter_change(f"{self.t1}",
+                            f"{self.t2}",
                             "IvsP",
                             self.scat["IvsP"])
         button_switch_IvsP = tk.Button(self.pages_2["sub_IvsP_page"],
                                        text="Switching between "
-                                            "Intelligence and "
-                                            "Playfulness Potential",
+                                            f"{self.t1} and {self.t2}",
                                        command=lambda:
-                                       self.scatter_change("Intelligence",
-                                                           "Playfulness "
-                                                           "Potential",
+                                       self.scatter_change(f"{self.t1}",
+                                                           f"{self.t2}",
                                                            "IvsP",
                                                            self.scat["IvsP"]),
                                        font=(self.font, 15),
@@ -356,34 +356,49 @@ class DogUI(tk.Tk):
                                        fg=self.light,
                                        activebackground=self.main,
                                        activeforeground=self.light)
+        cor = self.d1.d[[f"{self.t1}", f"{self.t2}"]].corr().iloc[0, 1]
+        text_1 = tk.Label(self.pages["IvsP"],
+                          text=f"Correlation Coefficient: {cor: .4f}\n"
+                               f"Relationship: {self.find_cor(cor)}",
+                          font=(self.font, 20),
+                          bg=self.background,
+                          fg=self.dark,
+                          justify=tk.LEFT)
         sub_IvsP_page.grid(column=0,
                            row=2,
                            columnspan=6)
         button_switch_IvsP.grid(column=0,
                                 row=0,
                                 columnspan=6,
-                                padx=15,
-                                pady=15,
+                                padx=5,
+                                pady=5,
                                 ipadx=100,
                                 ipady=5)
+        text_1.grid(column=0,
+                    row=4,
+                    sticky=tk.W,
+                    columnspan=6,
+                    padx=5,
+                    pady=0,
+                    ipadx=5,
+                    ipady=0)
+        self.init_Results(self.pages["IvsP"], 5)
 
     def init_IvsA(self):
         sub_IvsA_page = tk.Frame(self.pages["IvsA"],
                                  bg=self.background)
         self.pages_2["sub_IvsA_page"] = sub_IvsA_page
         self.scat["IvsA"] = False
-        self.scatter_change("Intelligence",
-                            "Tolerance of Being Alone",
+        self.scatter_change(f"{self.t1}",
+                            f"{self.t3}",
                             "IvsA",
                             self.scat["IvsA"])
         button_switch_IvsA = tk.Button(self.pages_2["sub_IvsA_page"],
                                        text="Switching between "
-                                            "Intelligence and "
-                                            "Tolerance of Being Alone",
+                                            f"{self.t1} and {self.t3}",
                                        command=lambda:
-                                       self.scatter_change("Intelligence",
-                                                           "Tolerance of "
-                                                           "Being Alone",
+                                       self.scatter_change(f"{self.t1}",
+                                                           f"{self.t3}",
                                                            "IvsA",
                                                            self.scat["IvsA"]),
                                        font=(self.font, 15),
@@ -391,35 +406,49 @@ class DogUI(tk.Tk):
                                        fg=self.light,
                                        activebackground=self.main,
                                        activeforeground=self.light)
+        cor = self.d1.d[[f"{self.t1}", f"{self.t3}"]].corr().iloc[0, 1]
+        text_1 = tk.Label(self.pages["IvsA"],
+                          text=f"Correlation Coefficient: {cor: .4f}\n"
+                               f"Relationship: {self.find_cor(cor)}",
+                          font=(self.font, 20),
+                          bg=self.background,
+                          fg=self.dark,
+                          justify=tk.LEFT)
         sub_IvsA_page.grid(column=0,
                            row=2,
                            columnspan=6)
         button_switch_IvsA.grid(column=0,
                                 row=0,
                                 columnspan=6,
-                                padx=15,
-                                pady=15,
+                                padx=5,
+                                pady=5,
                                 ipadx=100,
                                 ipady=5)
+        text_1.grid(column=0,
+                    row=4,
+                    sticky=tk.W,
+                    columnspan=6,
+                    padx=5,
+                    pady=0,
+                    ipadx=5,
+                    ipady=0)
+        self.init_Results(self.pages["IvsA"], 5)
 
     def init_PvsA(self):
         sub_PvsA_page = tk.Frame(self.pages["PvsA"],
                                  bg=self.background)
         self.pages_2["sub_PvsA_page"] = sub_PvsA_page
         self.scat["PvsA"] = False
-        self.scatter_change("Playfulness Potential",
-                            "Tolerance of Being Alone",
+        self.scatter_change(f"{self.t2}",
+                            f"{self.t3}",
                             "PvsA",
                             self.scat["PvsA"])
         button_switch_PvsA = tk.Button(self.pages_2["sub_PvsA_page"],
                                        text="Switching between "
-                                            "Playfulness Potential"
-                                            " and Tolerance of Being Alone",
+                                            f"{self.t2} and {self.t3}",
                                        command=lambda:
-                                       self.scatter_change("Playfulness "
-                                                           "Potential",
-                                                           "Tolerance of "
-                                                           "Being Alone",
+                                       self.scatter_change(f"{self.t2}",
+                                                           f"{self.t3}",
                                                            "PvsA",
                                                            self.scat["PvsA"]),
                                        font=(self.font, 15),
@@ -427,16 +456,33 @@ class DogUI(tk.Tk):
                                        fg=self.light,
                                        activebackground=self.main,
                                        activeforeground=self.light)
+        cor = self.d1.d[[f"{self.t2}", f"{self.t3}"]].corr().iloc[0, 1]
+        text_1 = tk.Label(self.pages["PvsA"],
+                          text=f"Correlation Coefficient: {cor: .4f}\n"
+                               f"Relationship: {self.find_cor(cor)}",
+                          font=(self.font, 20),
+                          bg=self.background,
+                          fg=self.dark,
+                          justify=tk.LEFT)
         sub_PvsA_page.grid(column=0,
                            row=2,
                            columnspan=6)
         button_switch_PvsA.grid(column=0,
                                 row=0,
                                 columnspan=6,
-                                padx=15,
-                                pady=15,
+                                padx=5,
+                                pady=5,
                                 ipadx=100,
                                 ipady=5)
+        text_1.grid(column=0,
+                    row=4,
+                    sticky=tk.W,
+                    columnspan=6,
+                    padx=5,
+                    pady=0,
+                    ipadx=5,
+                    ipady=0)
+        self.init_Results(self.pages["PvsA"], 5)
 
     def init_IPA(self):
         sub_IPA_page = tk.Frame(self.pages["IPA"],
@@ -447,9 +493,7 @@ class DogUI(tk.Tk):
         self.IPA_v3.set(True)
         self.bar_change()
         check_1 = [self.IPA_v1, self.IPA_v2, self.IPA_v3]
-        check_2 = ["Intelligence",
-                   "Playfulness Potential",
-                   "Tolerance of Being Alone"]
+        check_2 = [f"{self.t1}", f"{self.t2}", f"{self.t3}"]
         for i in range(0, 3):
             check = tk.Checkbutton(self.pages_2["sub_IPA_page"],
                                    text=check_2[i],
@@ -461,51 +505,65 @@ class DogUI(tk.Tk):
                                    activeforeground=self.main)
             check.grid(column=i,
                        row=0,
-                       padx=80,
+                       padx=30,
                        pady=10,
                        ipadx=5,
                        ipady=5)
         sub_IPA_page.grid(column=0,
                           row=2,
                           columnspan=6)
+        self.init_Results(self.pages["IPA"], 4)
 
     def init_DSC(self):
-        # todo: separate corr
-        self.show_page_2("DSC_page", "DSC")
+        title_1 = tk.Label(self.pages["DSC"],
+                           text="Descriptive Statistics",
+                           font=(self.font, 25),
+                           bg=self.background,
+                           fg=self.main)
+        title_2 = tk.Label(self.pages["DSC"],
+                           text="Correlations",
+                           font=(self.font, 25),
+                           bg=self.background,
+                           fg=self.main)
+        sub_1 = tk.Frame(self.pages["DSC"],
+                         bg=self.background)
+        sub_2 = tk.Frame(self.pages["DSC"],
+                         bg=self.background)
         description = self.d1.d.describe().transpose()
-        filtered_des = description.loc[["Intelligence",
-                                        "Playfulness Potential",
-                                        "Tolerance of Being Alone"]]
-        text_des = str(filtered_des).split()
-        for i in ["of", "Being", "Alone", "Potential"]:
-            text_des.remove(i)
-        text_des[text_des.index("Tolerance")] = "Tolerance of Being Alone"
-        text_des[text_des.index("Playfulness")] = "Playfulness Potential"
-        text_head = [""] + [text_des[i] for i in range(0, 8)]
-        text_Intell = [text_des[i] for i in range(8, 17)]
-        text_Play = [text_des[i] for i in range(17, 26)]
-        text_Alone = [text_des[i] for i in range(26, 35)]
-        text_all = text_head + text_Intell + text_Play + text_Alone
-        title = tk.Label(self.pages["DSC"],
-                         text="Descriptive\nStatistics\nand Correlations",
-                         font=(self.font, 35),
-                         bg=self.background,
-                         fg=self.main)
+        filtered_des = description.loc[[f"{self.t1}",
+                                        f"{self.t2}",
+                                        f"{self.t3}"]].values.tolist()
+        text_all_des = (["", "Count", "Mean", "STD", "Min",
+                         "25%", "50%", "75%", "Max"]
+                        + [f"{self.t1}"] + filtered_des[0]
+                        + [f"{self.t2}"] + filtered_des[1]
+                        + [f"{self.t3}"] + filtered_des[2])
+        for i in text_all_des:
+            try:
+                float_i = float(i)
+                index = text_all_des.index(i)
+                if float_i.is_integer():
+                    text_all_des[index] = f"{float_i:.0f}"
+                else:
+                    text_all_des[index] = f"{float_i:.4f}"
+            except ValueError:
+                continue
         count = 0
         for i in range(0, 4):
             for j in range(0, 9):
                 bg_color = self.main
                 fg_color = self.light
-                if text_all[count] in ["count", "mean", "std", "min", "25%",
-                                       "50%", "75%", "max", "Intelligence",
-                                       "Playfulness Potential",
-                                       "Tolerance of Being Alone"]:
+                if text_all_des[count] in ["Count", "Mean", "STD", "Min",
+                                           "25%", "50%", "75%", "Max",
+                                           f"{self.t1}",
+                                           f"{self.t2}",
+                                           f"{self.t3}"]:
                     bg_color = self.dark
                     fg_color = self.light
-                elif text_all[count] == "":
+                elif text_all_des[count] == "":
                     bg_color = self.background
-                des = tk.Label(self.pages_2["DSC_page"],
-                               text=text_all[count],
+                des = tk.Label(sub_1,
+                               text=text_all_des[count],
                                font=(self.font, 15),
                                bg=bg_color,
                                fg=fg_color)
@@ -517,37 +575,186 @@ class DogUI(tk.Tk):
                          ipadx=5,
                          ipady=5)
                 count += 1
+        filtered_cor = (self.d1.d[[f"{self.t1}", f"{self.t2}", f"{self.t3}"]]
+                        .corr().values.tolist())
+        filtered_cor = [[f"{val:.4f}" for val in row] for row in
+                        filtered_cor]
+        text_all_cor = ([""] + [f"{self.t1}", f"{self.t2}", f"{self.t3}"]
+                        + [f"{self.t1}"] + filtered_cor[0]
+                        + [f"{self.t2}"] + filtered_cor[1]
+                        + [f"{self.t3}"] + filtered_cor[2])
+        for i in text_all_cor:
+            try:
+                float_i = float(i)
+                index = text_all_cor.index(i)
+                if float_i.is_integer():
+                    text_all_cor[index] = f"{float_i:.0f}"
+                else:
+                    text_all_cor[index] = f"{float_i:.4f}"
+            except ValueError:
+                continue
+        count = 0
+        for i in range(0, 4):
+            for j in range(0, 4):
+                bg_color = self.main
+                fg_color = self.light
+                if text_all_cor[count] in [f"{self.t1}",
+                                           f"{self.t2}",
+                                           f"{self.t3}"]:
+                    bg_color = self.dark
+                    fg_color = self.light
+                elif text_all_cor[count] == "":
+                    bg_color = self.background
+                cor = tk.Label(sub_2,
+                               text=text_all_cor[count],
+                               font=(self.font, 15),
+                               bg=bg_color,
+                               fg=fg_color)
+                cor.grid(column=j,
+                         row=i,
+                         sticky=tk.NSEW,
+                         padx=5,
+                         pady=5,
+                         ipadx=5,
+                         ipady=5)
+                count += 1
+        title_1.grid(column=0,
+                     row=2,
+                     sticky=tk.NSEW,
+                     columnspan=2,
+                     padx=20,
+                     pady=5,
+                     ipadx=30,
+                     ipady=10)
+        title_2.grid(column=0,
+                     row=3,
+                     sticky=tk.NSEW,
+                     padx=20,
+                     pady=5,
+                     ipadx=30,
+                     ipady=10)
+        sub_1.grid(column=2,
+                   row=2,
+                   sticky=tk.NSEW,
+                   columnspan=4,
+                   padx=15,
+                   pady=15,
+                   ipadx=10,
+                   ipady=0)
+        sub_2.grid(column=1,
+                   row=3,
+                   sticky=tk.NSEW,
+                   columnspan=5,
+                   padx=15,
+                   pady=15,
+                   ipadx=10,
+                   ipady=0)
+        self.init_Results(self.pages["DSC"], 4)
+
+    def init_final(self):
+        I_P = f"{self.result_cor(self.t1, self.t2)}"
+        I_A = f"{self.result_cor(self.t1, self.t3)}"
+        P_A = f"{self.result_cor(self.t2, self.t3)}"
+        title = tk.Label(self.pages["final"],
+                         text="The story from the dataset",
+                         font=(self.font, 50),
+                         bg=self.background,
+                         fg=self.main)
+        sub_final = tk.Frame(self.pages["final"],
+                             bg=self.dark)
+        title_1 = tk.Label(sub_final,
+                           text=f"\n{self.t1} And {self.t2}",
+                           font=(self.font, 25),
+                           bg=self.dark,
+                           fg=self.light)
+        text_1 = tk.Label(sub_final,
+                          text=f"{I_P}\n",
+                          font=(self.font, 20),
+                          bg=self.dark,
+                          fg=self.light,
+                          wraplength=1250,
+                          justify=tk.LEFT)
+        title_2 = tk.Label(sub_final,
+                           text=f"{self.t1} And {self.t3}",
+                           font=(self.font, 25),
+                           bg=self.dark,
+                           fg=self.light)
+        text_2 = tk.Label(sub_final,
+                          text=f"{I_A}\n",
+                          font=(self.font, 20),
+                          bg=self.dark,
+                          fg=self.light,
+                          wraplength=1250,
+                          justify=tk.LEFT)
+        title_3 = tk.Label(sub_final,
+                           text=f"{self.t2} And {self.t3}",
+                           font=(self.font, 25),
+                           bg=self.dark,
+                           fg=self.light)
+        text_3 = tk.Label(sub_final,
+                          text=f"{P_A}\n",
+                          font=(self.font, 20),
+                          bg=self.dark,
+                          fg=self.light,
+                          wraplength=1250,
+                          justify=tk.LEFT)
         title.grid(column=0,
                    row=2,
                    sticky=tk.NSEW,
-                   columnspan=2,
+                   columnspan=6,
                    padx=20,
                    pady=5,
                    ipadx=30,
-                   ipady=10)
-        fig, ax = plt.subplots(figsize=(3, 2))
-        filtered = self.d1.d[["Intelligence", "Playfulness Potential",
-                              "Tolerance of Being Alone"]].corr()
-        sns.heatmap(filtered,
-                    square=True,
-                    linewidths=0.25,
-                    linecolor=(0, 0, 0),
-                    cmap=sns.color_palette("coolwarm"),
-                    annot=True,
-                    ax=ax)
-        ax.set_xticklabels([""] * len(filtered.columns))
-        ax.set_yticklabels([""] * len(filtered.index))
-        canvas = FigureCanvasTkAgg(fig,
-                                   master=self.pages["DSC"])
-        canvas.draw()
-        canvas.get_tk_widget().grid(column=2,
-                                    row=2,
-                                    sticky=tk.NSEW,
-                                    columnspan=2,
-                                    padx=20,
-                                    pady=20)
-        plt.close(fig)
-        self.init_Results(self.pages["DSC"], 4)
+                   ipady=5)
+        sub_final.grid(column=0,
+                       row=3,
+                       sticky=tk.NSEW,
+                       columnspan=6,
+                       padx=10,
+                       pady=10,
+                       ipadx=10,
+                       ipady=10)
+        title_1.grid(column=0,
+                     row=0,
+                     padx=5,
+                     pady=5,
+                     ipadx=5,
+                     ipady=5)
+        text_1.grid(column=0,
+                    row=1,
+                    sticky=tk.W,
+                    padx=5,
+                    pady=0,
+                    ipadx=20,
+                    ipady=0)
+        title_2.grid(column=0,
+                     row=2,
+                     padx=5,
+                     pady=5,
+                     ipadx=5,
+                     ipady=5)
+        text_2.grid(column=0,
+                    row=3,
+                    sticky=tk.W,
+                    padx=5,
+                    pady=0,
+                    ipadx=20,
+                    ipady=0)
+        title_3.grid(column=0,
+                     row=4,
+                     padx=5,
+                     pady=5,
+                     ipadx=5,
+                     ipady=5)
+        text_3.grid(column=0,
+                    row=5,
+                    sticky=tk.W,
+                    padx=5,
+                    pady=0,
+                    ipadx=20,
+                    ipady=0)
+        sub_final.columnconfigure(0, weight=1)
+        self.init_Results(self.pages["final"], 4)
 
     def show_page(self, name):
         for page in self.pages.values():
@@ -577,13 +784,28 @@ class DogUI(tk.Tk):
             messagebox.showwarning(f"No {ori_name}",
                                    f"There is no {ori_name}.")
         else:
-            if name not in self.pages.keys():
-                page = tk.Frame(self, bg=self.background)
-                self.pages[name] = page
-                self.init_dog_solo(name, name_list.index(name))
-                self.show_page(name)
+            web = self.d1.get_list("URL")
+            dog_breed = {}
+            for i in range(len(name_list)):
+                dog_breed[name_list[i]] = web[i]
+            webbrowser.open(f"{dog_breed[name]}")
+
+    def order(self, name):
+        list_name = [int(i) for i in self.d2.get_list(name)]
+        o_level = {}
+        count = 1
+        for i in list_name:
+            if i not in o_level:
+                o_level[i] = f"{count}"
             else:
-                self.show_page(name)
+                o_level[i] += f", {count}"
+            count += 1
+        o_level_list = [i for i, j in o_level.items()]
+        o_level_list.sort()
+        order_list = []
+        for i in o_level_list:
+            order_list.append(o_level[i])
+        return " < ".join(order_list)
 
     @staticmethod
     def focus_in(entry):
@@ -593,6 +815,85 @@ class DogUI(tk.Tk):
     def focus_out(entry, word):
         entry.delete(0, tk.END)
         entry.insert(0, word)
+
+    @staticmethod
+    def skewed(skewness):
+        if -0.5 < skewness < 0.5:
+            return "Symmetric Distribution"
+        elif -0.5 >= skewness:
+            if -1 >= skewness:
+                return "Highly Negative Skewed Distribution"
+            return "Negative Skewed Distribution"
+        elif 1 <= skewness:
+            return "Highly Positive Skewed Distribution"
+        return "Positive Skewed Distribution"
+
+    @staticmethod
+    def find_cor(cor):
+        if cor == 0:
+            return "No Linear Relationship"
+        elif 0 < cor <= 0.1:
+            return "Weak Positive Relationship"
+        elif -0.1 <= cor < 0:
+            return "Weak Negative Relationship"
+        elif 0.1 < cor <= 0.4:
+            return "Weak Positive Relationship"
+        elif -0.4 <= cor < -0.1:
+            return "Weak Negative Relationship"
+        elif 0.4 < cor <= 0.7:
+            return "Moderate Positive Relationship"
+        elif -0.7 <= cor < -0.4:
+            return "Moderate Negative Relationship"
+        elif cor < 0.7:
+            return "Strong Positive Relationship"
+        return "Strong Negative Relationship"
+
+    def result_cor(self, t1, t2):
+        cor = self.d1.d[[t1, t2]].corr().iloc[0, 1]
+        if cor == 0:
+            return (f"   There is no linear relationship ({cor:.4f}) between "
+                    f"{t1} and {t2}. This suggests that there is no "
+                    f"relationship between these aspects.")
+        elif 0 < cor <= 0.1:
+            return (f"   There is a weak positive relationship ({cor:.4f}) "
+                    f"between {t1} and {t2}. This is very close to zero, "
+                    f"suggesting that there is no relationship between "
+                    f"these aspects.")
+        elif -0.1 <= cor < 0:
+            return (f"   There is a weak negative relationship ({cor:.4f}) "
+                    f"between {t1} and {t2}. This is very close to zero, "
+                    f"suggesting that there is no relationship between "
+                    f"these aspects.")
+        elif 0.1 < cor <= 0.4:
+            return (f"   There is a weak positive relationship ({cor:.4f}) "
+                    f"between {t1} and {t2}. This suggests that there is a "
+                    f"slight tendency for a dog breed with a higher {t1} "
+                    f"level to also have a higher {t2} level.")
+        elif -0.4 <= cor < -0.1:
+            return (f"   There is a weak negative relationship ({cor:.4f}) "
+                    f"between {t1} and {t2}. This suggests that there is a "
+                    f"slight tendency for a dog breed with a higher {t1} "
+                    f"level to have a lower {t2} level.")
+        elif 0.4 < cor <= 0.7:
+            return (f"   There is a moderate positive relationship ({cor:.4f})"
+                    f" between {t1} and {t2}. This suggests that there is a "
+                    f"clear tendency for a dog breed with a higher {t1} "
+                    f"level to also have a higher {t2} level.")
+        elif -0.7 <= cor < -0.4:
+            return (f"   There is a moderate negative relationship ({cor:.4f})"
+                    f" between {t1} and {t2}. This suggests that there is a "
+                    f"clear tendency for a dog breed with a higher {t1} "
+                    f"level to have a lower {t2} level.")
+        elif cor < 0.7:
+            return (f"   There is a strong positive relationship ({cor:.4f}) "
+                    f"between {t1} and {t2}. This suggests that there is a "
+                    f"strong tendency for a dog breed with a higher {t1} "
+                    f"level to also have a higher {t2} level.")
+        else:
+            return (f"   There is a strong negative relationship ({cor:.4f}) "
+                    f"between {t1} and {t2}. This suggests that there is a "
+                    f"strong tendency for a dog breed with a higher {t1} "
+                    f"level to have a lower {t2} level.")
 
     def histogram(self, name, page, column, row, span, df, x, x_name, y_name):
         fig, ax = plt.subplots()
@@ -608,8 +909,8 @@ class DogUI(tk.Tk):
         ax.set_ylabel(y_name,
                       fontsize=10,
                       fontfamily=self.font_fam)
-        ax.set_title(name,
-                     fontsize=15,
+        ax.set_title(f"The histogram of all levels of\n{name}",
+                     fontsize=10,
                      fontfamily=self.font_fam)
         canvas = FigureCanvasTkAgg(fig,
                                    master=page)
@@ -618,13 +919,15 @@ class DogUI(tk.Tk):
         canvas.get_tk_widget().grid(column=column,
                                     row=row,
                                     sticky=tk.NSEW,
-                                    columnspan=span)
+                                    columnspan=span,
+                                    pady=15)
         plt.close(fig)
 
     def his_change(self):
         self.show_page_2("his_page", "histogram")
         all_list = []
         name_list = []
+        self.text.grid_remove()
         if not self.v1.get() and not self.v2.get() and not self.v3.get():
             messagebox.showwarning(f"Can't uncheck all",
                                    f"You can't uncheck all three.")
@@ -632,18 +935,17 @@ class DogUI(tk.Tk):
             self.v2.set(True)
             self.v3.set(True)
         if self.v1.get():
-            all_list += self.d1.get_list("Trainability")
-            name_list.append("Trainability")
+            all_list += self.d1.get_list(f"{self.m_t1}")
+            name_list.append(f"{self.m_t1}")
         if self.v2.get():
-            all_list += self.d1.get_list("Exercise Needs")
-            name_list.append("Exercise Needs")
+            all_list += self.d1.get_list(f"{self.m_t2}")
+            name_list.append(f"{self.m_t2}")
         if self.v3.get():
-            all_list += self.d1.get_list("Adaptability")
-            name_list.append("Adaptability")
+            all_list += self.d1.get_list(f"{self.m_t3}")
+            name_list.append(f"{self.m_t3}")
         df = pd.DataFrame({"histogram_list": all_list})
         name = ", ".join(name_list)
-        self.histogram("The histogram of all levels of\n"
-                       f"{name}",
+        self.histogram(name,
                        self.pages_2["his_page"],
                        0,
                        0,
@@ -652,7 +954,10 @@ class DogUI(tk.Tk):
                        "histogram_list",
                        "Level",
                        "Frequency of level")
-        self.init_Results(self.pages["histogram"], 4)
+        skewness = stats.skew(df["histogram_list"])
+        skewed = self.skewed(skewness)
+        self.skew.set(f"The Distribution: {skewed}")
+        self.text.grid()
 
     def scatter(self, page, column, row, span, df, x, y):
         fig, ax = plt.subplots()
@@ -669,7 +974,7 @@ class DogUI(tk.Tk):
                       fontsize=10,
                       fontfamily=self.font_fam)
         ax.set_title(f"{x} vs {y}",
-                     fontsize=15,
+                     fontsize=10,
                      fontfamily=self.font_fam)
         ax.grid(True)
         canvas = FigureCanvasTkAgg(fig,
@@ -678,7 +983,9 @@ class DogUI(tk.Tk):
         canvas.get_tk_widget().grid(column=column,
                                     row=row,
                                     sticky=tk.NSEW,
-                                    columnspan=span)
+                                    columnspan=span,
+                                    padx=10,
+                                    pady=15)
         plt.close(fig)
 
     def scatter_change(self, x, y, name, var):
@@ -699,17 +1006,16 @@ class DogUI(tk.Tk):
                      df,
                      x,
                      y)
-        self.init_Results(self.pages[name], 4)
 
-    def bar(self, name, page, column, row, span, df, color):
-        melted_df = df.melt(id_vars="Level",
-                            var_name="each_topic",
-                            value_name="val")
+    def bar(self, name, page, column, row, c_span, r_span, df, color):
+        self.melted_df = df.melt(id_vars="Level",
+                                 var_name="Each Topic",
+                                 value_name="val")
         fig, ax = plt.subplots()
-        sns.barplot(data=melted_df,
+        sns.barplot(data=self.melted_df,
                     x="Level",
                     y="val",
-                    hue="each_topic",
+                    hue="Each Topic",
                     palette=color,
                     ax=ax)
         ax.set_xlabel("Level",
@@ -718,9 +1024,8 @@ class DogUI(tk.Tk):
         ax.set_ylabel("Frequency of Level",
                       fontsize=10,
                       fontfamily=self.font_fam)
-        ax.set_title(f"The bar graph of levels of \n"
-                     f"{name}",
-                     fontsize=15,
+        ax.set_title(f"The bar graph of levels of\n{name}",
+                     fontsize=10,
                      fontfamily=self.font_fam)
         ax.grid(True)
         canvas = FigureCanvasTkAgg(fig,
@@ -729,7 +1034,8 @@ class DogUI(tk.Tk):
         canvas.get_tk_widget().grid(column=column,
                                     row=row,
                                     sticky=tk.NSEW,
-                                    columnspan=span)
+                                    columnspan=c_span,
+                                    rowspan=r_span)
         plt.close(fig)
 
     def bar_change(self):
@@ -737,6 +1043,8 @@ class DogUI(tk.Tk):
         name_dict = {}
         all_dict = {}
         color = []
+        text_list = []
+        text_val = []
         if (not self.IPA_v1.get()
                 and not self.IPA_v2.get()
                 and not self.IPA_v3.get()):
@@ -746,14 +1054,47 @@ class DogUI(tk.Tk):
             self.IPA_v2.set(True)
             self.IPA_v3.set(True)
         if self.IPA_v1.get():
-            name_dict["Intelligence"] = "Frequency_Intell"
+            order = self.order(f"{self.t1}")
+            name_dict[f"{self.t1}"] = f"{self.t1}"
             color.append(self.main)
+            text_list.append(tk.Label(self.pages_2["IPA_page"],
+                                      text=f"\n{self.t1}",
+                                      font=(self.font, 20),
+                                      bg=self.background,
+                                      fg=self.dark))
+            text_val.append(tk.Label(self.pages_2["IPA_page"],
+                                     text=f"  {order}",
+                                     font=(self.font, 20),
+                                     bg=self.background,
+                                     fg=self.dark))
         if self.IPA_v2.get():
-            name_dict["Playfulness Potential"] = "Frequency_Play"
+            order = self.order(f"{self.t2}")
+            name_dict[f"{self.t2}"] = f"{self.t2}"
             color.append(self.background)
+            text_list.append(tk.Label(self.pages_2["IPA_page"],
+                                      text=f"\n{self.t2}",
+                                      font=(self.font, 20),
+                                      bg=self.background,
+                                      fg=self.dark))
+            text_val.append(tk.Label(self.pages_2["IPA_page"],
+                                     text=f"  {order}",
+                                     font=(self.font, 20),
+                                     bg=self.background,
+                                     fg=self.dark))
         if self.IPA_v3.get():
-            name_dict["Tolerance of Being Alone"] = "Frequency_Alone"
+            order = self.order(f"{self.t3}")
+            name_dict[f"{self.t3}"] = f"{self.t3}"
             color.append(self.pitch)
+            text_list.append(tk.Label(self.pages_2["IPA_page"],
+                                      text=f"\n{self.t3}",
+                                      font=(self.font, 20),
+                                      bg=self.background,
+                                      fg=self.dark))
+            text_val.append(tk.Label(self.pages_2["IPA_page"],
+                                     text=f"  {order}",
+                                     font=(self.font, 20),
+                                     bg=self.background,
+                                     fg=self.dark))
         all_dict["Level"] = self.d2.get_list("Level")
         for i, j in name_dict.items():
             all_dict.update({i: self.d2.get_list(j)})
@@ -763,10 +1104,26 @@ class DogUI(tk.Tk):
                  self.pages_2["IPA_page"],
                  0,
                  0,
+                 3,
                  6,
                  df,
                  color)
-        self.init_Results(self.pages["IPA"], 4)
+        count = 0
+        count_val = 0
+        for i in text_list:
+            text = i
+            val = text_val[count_val]
+            text.grid(column=3,
+                      row=count,
+                      sticky="WN",
+                      ipadx=20)
+            count += 1
+            val.grid(column=3,
+                     row=count,
+                     sticky="WN",
+                     ipadx=20)
+            count += 1
+            count_val += 1
 
     def close_window_and_exit(self):
         self.destroy()
