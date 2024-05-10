@@ -244,7 +244,7 @@ class DogUI(tk.Tk):
                         "The bar graph of all levels of "
                         f"{self.t1}, {self.t2}, and {self.t3}",
                         "The histogram of all levels of "
-                        f"{self.t1}, {self.t2}, and {self.t3}",
+                        f"{self.m_t1}, {self.m_t2}, and {self.m_t3}",
                         "Descriptive Statistics and Correlations",
                         "The story from the dataset"]
         button_all_2 = ["IvsP", "IvsA", "PvsA", "IPA",
