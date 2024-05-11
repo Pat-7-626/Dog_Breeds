@@ -10,6 +10,8 @@ The Year Project of Programming II, Pattharamon Dumrongkittikule 6610545472
 
 - Screenshots of the application:
   - ![home](screenshots/home.png)
+  - ![dog_solo](screenshots/dog_solo.png)
+  - ![dog_list](screenshots/dog_list.png)
   - ![DSR](screenshots/DSR.png)
   - ![IvsA](screenshots/IvsA.png)
   - ![bar](screenshots/bar.png)
