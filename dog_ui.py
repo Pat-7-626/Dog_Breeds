@@ -320,7 +320,7 @@ class DogUI(tk.Tk):
         for i in range(0, 6):
             text = self.d1.get_list(f"{level_all[i]}")
             text_list.append(f"{level_all[i]}: {star * text[index]}")
-        text = f"{"\n\n".join(text_list)}" + "\n\n"
+        text = "\n\n".join(text_list) + "\n\n"
         level_1_text = tk.Label(sub_dog_solo,
                                 text=f"{text}",
                                 font=(self.font, 15),
@@ -331,7 +331,7 @@ class DogUI(tk.Tk):
         for i in range(6, 10):
             text = self.d1.get_list(f"{level_all[i]}")
             text_list.append(f"{level_all[i]}: {star * text[index]}")
-        text = f"{"\n\n".join(text_list)}" + "\n\n"
+        text = "\n\n".join(text_list) + "\n\n"
         level_2_text = tk.Label(sub_dog_solo,
                                 text=f"{text}",
                                 font=(self.font, 15),
@@ -342,7 +342,7 @@ class DogUI(tk.Tk):
         for i in range(10, 16):
             text = self.d1.get_list(f"{level_all[i]}")
             text_list.append(f"{level_all[i]}: {star * text[index]}")
-        text = f"{"\n\n".join(text_list)}" + "\n\n"
+        text = "\n\n".join(text_list) + "\n\n"
         level_3_text = tk.Label(sub_dog_solo,
                                 text=f"{text}",
                                 font=(self.font, 15),
@@ -353,7 +353,7 @@ class DogUI(tk.Tk):
         for i in range(16, 22):
             text = self.d1.get_list(f"{level_all[i]}")
             text_list.append(f"{level_all[i]}: {star * text[index]}")
-        text = f"{"\n\n".join(text_list)}" + "\n\n"
+        text = "\n\n".join(text_list) + "\n\n"
         level_4_text = tk.Label(sub_dog_solo,
                                 text=f"{text}",
                                 font=(self.font, 15),
@@ -364,7 +364,7 @@ class DogUI(tk.Tk):
         for i in range(22, 25):
             text = self.d1.get_list(f"{level_all[i]}")
             text_list.append(f"{level_all[i]}: {star * text[index]}")
-        text = f"{"\n\n".join(text_list)}" + "\n\n"
+        text = "\n\n".join(text_list) + "\n\n"
         level_5_text = tk.Label(sub_dog_solo,
                                 text=f"{text}",
                                 font=(self.font, 15),
