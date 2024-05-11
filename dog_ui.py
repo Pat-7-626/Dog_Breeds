@@ -42,6 +42,7 @@ class DogUI(tk.Tk):
         self.pages_2 = {}
         self.scat = {}
         self.name_var = tk.StringVar()
+        self.name_var_2 = tk.StringVar()
         self.skew = tk.StringVar()
         self.v1 = tk.BooleanVar()
         self.v2 = tk.BooleanVar()
@@ -50,6 +51,7 @@ class DogUI(tk.Tk):
         self.IPA_v2 = tk.BooleanVar()
         self.IPA_v3 = tk.BooleanVar()
         self.entry_story = None
+        self.entry_story_2 = None
         self.text = None
         self.title("Dog Breeds")
         self.configure(bg=self.background,
@@ -65,12 +67,13 @@ class DogUI(tk.Tk):
         init of page
         :return: void
         """
-        for i in ["home", "story", "DSC", "histogram", "IvsP", "IvsA",
-                  "PvsA", "IPA", "final"]:
+        for i in ["home", "dog_list", "story", "DSC", "histogram",
+                  "IvsP", "IvsA", "PvsA", "IPA", "final"]:
             page = tk.Frame(self,
                             bg=self.background)
             self.pages[i] = page
         self.init_home()
+        self.init_dog_list()
         self.init_story()
         self.init_histogram()
         self.init_IvsP()
@@ -179,15 +182,15 @@ class DogUI(tk.Tk):
                                   fg=self.light,
                                   activebackground=self.main,
                                   activeforeground=self.light)
-        button_dog_web = tk.Button(self.pages["home"],
-                                   text="All dog breeds",
-                                   command=lambda:
-                                   webbrowser.open("https://dogtime.com/"),
-                                   font=(self.font, 15),
-                                   bg=self.dark,
-                                   fg=self.light,
-                                   activebackground=self.main,
-                                   activeforeground=self.light)
+        button_dog_list = tk.Button(self.pages["home"],
+                                    text="All dog breeds",
+                                    command=lambda:
+                                    self.show_page("dog_list"),
+                                    font=(self.font, 15),
+                                    bg=self.dark,
+                                    fg=self.light,
+                                    activebackground=self.main,
+                                    activeforeground=self.light)
         button_story = tk.Button(self.pages["home"],
                                  text="Data Storytelling Results",
                                  command=lambda:
@@ -218,14 +221,14 @@ class DogUI(tk.Tk):
                            pady=10,
                            ipadx=30,
                            ipady=10)
-        button_dog_web.grid(column=4,
-                            row=3,
-                            sticky=tk.NSEW,
-                            columnspan=2,
-                            padx=10,
-                            pady=10,
-                            ipadx=10,
-                            ipady=10)
+        button_dog_list.grid(column=4,
+                             row=3,
+                             sticky=tk.NSEW,
+                             columnspan=2,
+                             padx=10,
+                             pady=10,
+                             ipadx=10,
+                             ipady=10)
         button_story.grid(column=4,
                           row=4,
                           sticky=tk.NSEW,
@@ -250,6 +253,245 @@ class DogUI(tk.Tk):
                                   self.entry_story,
                                   "   Name of a dog breed here..."))
         self.entry_story.bind("<Return>", self.show_dog_solo)
+
+    def init_dog_solo(self, name, index):
+        star = "⭐"
+        level_1 = ["Adapts Well To Apartment Living",
+                   "Good For Novice Owner",
+                   "Sensitivity Level",
+                   "Tolerance of Being Alone",
+                   "Tolerance of Cold Weather",
+                   "Tolerance of Hot Weather"]
+        level_2 = ["Affectionate With Family",
+                   "Kid Friendly",
+                   "Dog Friendly",
+                   "Stranger Friendly"]
+        level_3 = ["Amount Of Shedding",
+                   "Drooling Potential",
+                   "Easy To Groom",
+                   "General Health",
+                   "Weight Gain Potential",
+                   "Size"]
+        level_4 = ["Easy To Train",
+                   "Intelligence",
+                   "Mouthiness Potential",
+                   "Prey Drive",
+                   "Tendency To Bark Or Howl",
+                   "Wanderlust Potential"]
+        level_5 = ["High Energy Level",
+                   "Intensity",
+                   "Playfulness Potential"]
+        level_all = level_1 + level_2 + level_3 + level_4 + level_5
+        ori_list = self.d1.get_list("Breed Name")
+        ori_name = ori_list[index]
+        title = tk.Label(self.pages[name],
+                         text=ori_name,
+                         font=(self.font, 50),
+                         bg=self.background,
+                         fg=self.main)
+        sub_dog_solo = tk.Frame(self.pages[name],
+                                bg=self.dark)
+        level_1_main = tk.Label(sub_dog_solo,
+                                text="Adaptability",
+                                font=(self.font, 20),
+                                bg=self.dark,
+                                fg=self.light)
+        level_2_main = tk.Label(sub_dog_solo,
+                                text="Friendliness",
+                                font=(self.font, 20),
+                                bg=self.dark,
+                                fg=self.light)
+        level_3_main = tk.Label(sub_dog_solo,
+                                text="Health And Grooming",
+                                font=(self.font, 20),
+                                bg=self.dark,
+                                fg=self.light)
+        level_4_main = tk.Label(sub_dog_solo,
+                                text="Trainability",
+                                font=(self.font, 20),
+                                bg=self.dark,
+                                fg=self.light)
+        level_5_main = tk.Label(sub_dog_solo,
+                                text="Exercise Needs",
+                                font=(self.font, 20),
+                                bg=self.dark,
+                                fg=self.light)
+        text_list = []
+        for i in range(0, 6):
+            text = self.d1.get_list(f"{level_all[i]}")
+            text_list.append(f"{level_all[i]}: {star * text[index]}")
+        text = f"{"\n\n".join(text_list)}" + "\n\n"
+        level_1_text = tk.Label(sub_dog_solo,
+                                text=f"{text}",
+                                font=(self.font, 15),
+                                bg=self.dark,
+                                fg=self.light,
+                                justify=tk.LEFT)
+        text_list = []
+        for i in range(6, 10):
+            text = self.d1.get_list(f"{level_all[i]}")
+            text_list.append(f"{level_all[i]}: {star * text[index]}")
+        text = f"{"\n\n".join(text_list)}" + "\n\n"
+        level_2_text = tk.Label(sub_dog_solo,
+                                text=f"{text}",
+                                font=(self.font, 15),
+                                bg=self.dark,
+                                fg=self.light,
+                                justify=tk.LEFT)
+        text_list = []
+        for i in range(10, 16):
+            text = self.d1.get_list(f"{level_all[i]}")
+            text_list.append(f"{level_all[i]}: {star * text[index]}")
+        text = f"{"\n\n".join(text_list)}" + "\n\n"
+        level_3_text = tk.Label(sub_dog_solo,
+                                text=f"{text}",
+                                font=(self.font, 15),
+                                bg=self.dark,
+                                fg=self.light,
+                                justify=tk.LEFT)
+        text_list = []
+        for i in range(16, 22):
+            text = self.d1.get_list(f"{level_all[i]}")
+            text_list.append(f"{level_all[i]}: {star * text[index]}")
+        text = f"{"\n\n".join(text_list)}" + "\n\n"
+        level_4_text = tk.Label(sub_dog_solo,
+                                text=f"{text}",
+                                font=(self.font, 15),
+                                bg=self.dark,
+                                fg=self.light,
+                                justify=tk.LEFT)
+        text_list = []
+        for i in range(22, 25):
+            text = self.d1.get_list(f"{level_all[i]}")
+            text_list.append(f"{level_all[i]}: {star * text[index]}")
+        text = f"{"\n\n".join(text_list)}" + "\n\n"
+        level_5_text = tk.Label(sub_dog_solo,
+                                text=f"{text}",
+                                font=(self.font, 15),
+                                bg=self.dark,
+                                fg=self.light,
+                                justify=tk.LEFT)
+        title.grid(column=0,
+                   row=2,
+                   sticky=tk.NSEW,
+                   columnspan=6,
+                   padx=20,
+                   pady=5,
+                   ipadx=30,
+                   ipady=5)
+        sub_dog_solo.grid(column=0,
+                          row=3,
+                          sticky=tk.NSEW,
+                          columnspan=6,
+                          padx=10,
+                          pady=10,
+                          ipadx=10,
+                          ipady=10)
+        list_1 = [level_1_main, level_2_main, level_3_main]
+        list_2 = [level_1_text, level_2_text, level_3_text]
+        for i in range(0, 3):
+            list_1[i].grid(column=i,
+                           row=0,
+                           padx=5,
+                           pady=5,
+                           ipadx=20,
+                           ipady=10)
+            list_2[i].grid(column=i,
+                           row=1,
+                           sticky="NW",
+                           padx=5,
+                           pady=5,
+                           ipadx=20,
+                           ipady=5)
+        list_3 = [level_4_main, level_5_main]
+        list_4 = [level_4_text, level_5_text]
+        for i in range(0, 2):
+            list_3[i].grid(column=i,
+                           row=2,
+                           padx=5,
+                           pady=5,
+                           ipadx=20,
+                           ipady=10)
+            list_4[i].grid(column=i,
+                           row=3,
+                           sticky="NW",
+                           padx=5,
+                           pady=5,
+                           ipadx=20,
+                           ipady=5)
+        sub_dog_solo.columnconfigure(0, weight=1)
+
+    def init_dog_list(self):
+        sub_dog_list = tk.Frame(self.pages["dog_list"],
+                                bg=self.background)
+        title = tk.Label(self.pages["dog_list"],
+                         text="Dog Breeds",
+                         font=(self.font, 50),
+                         bg=self.background,
+                         fg=self.main)
+        self.entry_story_2 = tk.Entry(self.pages["dog_list"],
+                                      textvariable=self.name_var_2,
+                                      font=(self.font, 20),
+                                      bg=self.light,
+                                      fg=self.main)
+        text = tk.Text(sub_dog_list,
+                       font=("Terminal", 20),
+                       bg=self.dark,
+                       fg=self.light)
+        ori_list = self.d1.get_list("Breed Name")
+        new_list = []
+        count = 1
+        for i in ori_list:
+            new_list.append(f"   {count}: {i}")
+            count += 1
+        text_name = f"\n\n\n".join(new_list)
+        text.insert(tk.END, "\n" + text_name + "\n")
+        scrollbar = tk.Scrollbar(sub_dog_list,
+                                 orient=tk.VERTICAL,
+                                 command=text.yview)
+        text.config(yscrollcommand=scrollbar.set)
+        title.grid(column=0,
+                   row=2,
+                   sticky=tk.NSEW,
+                   columnspan=6,
+                   padx=20,
+                   pady=5,
+                   ipadx=30,
+                   ipady=5)
+        self.entry_story_2.grid(column=0,
+                                row=3,
+                                sticky=tk.NSEW,
+                                columnspan=6,
+                                padx=10,
+                                pady=10,
+                                ipadx=100,
+                                ipady=10)
+        sub_dog_list.grid(column=0,
+                          row=4,
+                          sticky=tk.NSEW,
+                          columnspan=6)
+        text.grid(column=0,
+                  row=0,
+                  sticky=tk.NSEW,
+                  columnspan=6,
+                  padx=10,
+                  pady=10,
+                  ipadx=10,
+                  ipady=10)
+        scrollbar.grid(column=1,
+                       row=0,
+                       sticky="NS")
+        self.entry_story_2.insert(0, "   Name of a dog breed here...")
+        self.entry_story_2.bind("<FocusIn>",
+                                lambda event: self.focus_in(
+                                    self.entry_story_2))
+        self.entry_story_2.bind("<FocusOut>",
+                                lambda event: self.focus_out(
+                                    self.entry_story_2,
+                                    "   Name of a dog breed here..."))
+        self.entry_story_2.bind("<Return>", self.show_dog_solo_2)
+        sub_dog_list.columnconfigure(0, weight=1)
+        text.configure(state='disabled')
 
     def init_story(self):
         """
@@ -857,11 +1099,35 @@ class DogUI(tk.Tk):
             messagebox.showwarning(f"No {ori_name}",
                                    f"There is no {ori_name}.")
         else:
-            web = self.d1.get_list("URL")
-            dog_breed = {}
-            for i in range(len(name_list)):
-                dog_breed[name_list[i]] = web[i]
-            webbrowser.open(f"{dog_breed[name]}")
+            if name not in self.pages.keys():
+                page = tk.Frame(self, bg=self.background)
+                self.pages[name] = page
+                self.init_dog_solo(name, name_list.index(name))
+                self.show_page(name)
+            else:
+                self.show_page(name)
+
+    def show_dog_solo_2(self, event):
+        """
+        go to website of each dog
+        :return: void
+        """
+        ori_name = self.entry_story_2.get()
+        name = ori_name.lower().replace(" ", "")
+        ori_list = self.d1.get_list("Breed Name")
+        name_list = [i.lower().replace(" ", "") for i in ori_list]
+        self.pages["home"].focus_set()
+        if name not in name_list:
+            messagebox.showwarning(f"No {ori_name}",
+                                   f"There is no {ori_name}.")
+        else:
+            if name not in self.pages.keys():
+                page = tk.Frame(self, bg=self.background)
+                self.pages[name] = page
+                self.init_dog_solo(name, name_list.index(name))
+                self.show_page(name)
+            else:
+                self.show_page(name)
 
     def order(self, name):
         """
